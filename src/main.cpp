@@ -44,6 +44,7 @@ int main() {
         // TODO: set shader uniforms and eventually draw into
         // a RenderTexture first before postprocessing into the window target.
         shader.setUniform("windowSize", sf::Vector2f(window.getSize()));
+        shader.setUniform("cursorPos", sf::Vector2f(sf::Mouse::getPosition(window)));
         window.clear(sf::Color::Black);
         window.draw(fullscreenTriangle, &shader);
         window.display();
