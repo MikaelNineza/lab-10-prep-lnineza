@@ -32,10 +32,13 @@ int main() {
     fullscreenTriangle[1].texCoords = {2, 0};
     fullscreenTriangle[2].texCoords = {0, 2};
     // load vertex and fragment shaders:
+    
     sf::Shader shader(std::filesystem::path{"main.vert"}, std::filesystem::path{"main.frag"});
     // TODO: eventually add another Shader here which uses the blur fragment shader,
     // also create a sf::RenderTexture...
     std::chrono::time_point<std::chrono::steady_clock> t1 = std::chrono::steady_clock::now();
+    sf::Shader shader2(std::filesystem::path{"main.vert"}, std::filesystem::path{"blur.frag"});
+    sf::RenderTexture beforeBluring(window.getSize());
     while (window.isOpen()) {
         while (auto e = window.pollEvent()) {
             if (e->is<sf::Event::Closed>()) {
@@ -46,10 +49,15 @@ int main() {
         // a RenderTexture first before postprocessing into the window target.
         std::chrono::time_point<std::chrono::steady_clock> t2 = std::chrono::steady_clock::now();
         shader.setUniform("timeDiff", int(std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()));
-        shader.setUniform("windowSize", sf::Vector2f(window.getSize()));
+        shader.setUniform("windowSize", sf::Vector2f(beforeBluring.getSize()));
         shader.setUniform("cursorPos", sf::Vector2f(sf::Mouse::getPosition(window)));
+        beforeBluring.clear(sf::Color::Black);
+        beforeBluring.draw(fullscreenTriangle, &shader);
+        beforeBluring.display();
+        shader2.setUniform("texture", beforeBluring.getTexture());
+        shader2.setUniform("textureSize", sf::Vector2f(beforeBluring.getSize()));
         window.clear(sf::Color::Black);
-        window.draw(fullscreenTriangle, &shader);
+        window.draw(fullscreenTriangle, &shader2);
         window.display();
     }
     return 0;
