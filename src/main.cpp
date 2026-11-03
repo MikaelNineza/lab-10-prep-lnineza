@@ -35,6 +35,7 @@ int main() {
     sf::Shader shader(std::filesystem::path{"main.vert"}, std::filesystem::path{"main.frag"});
     // TODO: eventually add another Shader here which uses the blur fragment shader,
     // also create a sf::RenderTexture...
+    std::chrono::time_point<std::chrono::steady_clock> t1 = std::chrono::steady_clock::now();
     while (window.isOpen()) {
         while (auto e = window.pollEvent()) {
             if (e->is<sf::Event::Closed>()) {
@@ -43,6 +44,8 @@ int main() {
         }
         // TODO: set shader uniforms and eventually draw into
         // a RenderTexture first before postprocessing into the window target.
+        std::chrono::time_point<std::chrono::steady_clock> t2 = std::chrono::steady_clock::now();
+        shader.setUniform("timeDiff", int(std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()));
         shader.setUniform("windowSize", sf::Vector2f(window.getSize()));
         shader.setUniform("cursorPos", sf::Vector2f(sf::Mouse::getPosition(window)));
         window.clear(sf::Color::Black);
